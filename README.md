@@ -68,6 +68,26 @@ For example:
 "bababa"
 ```
 
+**Solution:**
+```
+>> def miniswap(seq) {
+..       return aggregate(select(indices, indices + 1, ==), seq, "z") 
+..       if indices % 2 == 0
+..       else aggregate(select(indices, indices-1, ==), seq, "z");
+..   }
+     console function: miniswap(seq)
+>> def swap(seq) {
+..      return aggregate(select(indices, indices, ==), seq, "z")
+..      if length % 2 == 1 and indices == length - 1
+..      else miniswap(seq);
+..   }
+     console function: swap(seq)
+>> swap(tokens)("hello");
+         =  [e, h, l, l, o] (strings)
+>> swap(tokens)("ababab");
+         =  [b, a, b, a, b, a] (strings)
+```
+
 **Problem 4:**
 Write a function that returns the maximum value in the sequence repeated for every position.
 For example:
@@ -76,16 +96,26 @@ For example:
 "ccccccccc"
 ```
 
-~~**Problem 5:**
-Write a function that returns the maximum value in the sequnce only of the tokens seen so far.
-For example:~~
+**Solution:**
 ```
-> maxseq(tokens)("ababcabab")
-"abbbccccc"
+>> def sort2(seq) {
+..       select_earlier_in_sorted = 
+..           select(seq,seq,<) or (select(seq,seq,==) and select(indices,indices,<));
+..       target_position = 
+..           selector_width(select_earlier_in_sorted);
+..       select_new_val = 
+..           select(target_position,indices,==);
+..       return aggregate(select_new_val,seq);
+..   }
+     console function: sort2(seq)
+>> def maxseq(seq) {
+..      max_val = sort2(seq)[-1][0];
+..      return max_val * length;
+..   }
+     console function: maxseq(seq)
+>> maxseq(tokens)("ababcabab");
+         =  [ccccccccc]*9 (strings)
 ```
-
-> *Hint:*
-> The `mask_ag` selector is useful for any problem that is either "autogenerative" or using only tokens "seen so far".
 
 **Problem 6:**
 Write a function that performs sequence reversal "autogeneratively".
@@ -102,6 +132,45 @@ For example:
 "hello$o"
 > reverse_ag(tokens)("hello$XXXXXXXXXX")
 "hello$olleh     "
+```
+
+**Solution:**
+```
+>> set example "hello$ "
+>> dollar_pos = select_from_first(tokens, "$");
+     selector: dollar_pos
+         Example:
+                             h e l l o $  
+                         h |           1  
+                         e |           1  
+                         l |           1  
+                         l |           1  
+                         o |           1  
+                         $ |           1  
+                           |           1  
+>> 
+.. string_after = aggregate(dollar_pos, indices);
+     s-op: string_after
+         Example: string_after("hello$ ") = [5]*7 (ints)
+>> 
+.. def reverse_func(seq) {
+..       return aggregate(select(indices, string_after * 2 - indices, ==), seq, "");
+..   }
+     console function: reverse_func(seq)
+>> def reverse_ag(seq) {
+..      return seq 
+..      if indices <= string_after 
+..      else reverse_func(seq);
+..   }
+     console function: reverse_ag(seq)
+>> reverse_ag(tokens)("hello$     ");
+         =  [h, e, l, l, o, $, o, l, l, e, h] (strings)
+>> reverse_ag(tokens)("hello$ ");
+         =  [h, e, l, l, o, $, o] (strings)
+>> reverse_ag(tokens)("hello$X");
+         =  [h, e, l, l, o, $, o] (strings)
+>> reverse_ag(tokens)("hello$XXXXXXXXXX");
+         =  [h, e, l, l, o, $, o, l, l, e, h, , , , , ] (strings)
 ```
 
 **Problem 6:**
