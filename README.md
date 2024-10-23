@@ -99,22 +99,23 @@ For example:
 **Solution:**
 ```
 >> def sort2(seq) {
-..       select_earlier_in_sorted = 
-..           select(seq,seq,<) or (select(seq,seq,==) and select(indices,indices,<));
-..       target_position = 
-..           selector_width(select_earlier_in_sorted);
-..       select_new_val = 
-..           select(target_position,indices,==);
-..       return aggregate(select_new_val,seq);
+..   select_earlier_in_sorted = 
+..   select(seq,seq,<) or (select(seq,seq,==) 
+..   and select(indices,indices,<));
+..   target_position = 
+..   selector_width(select_earlier_in_sorted);
+..   select_new_val = 
+..   select(target_position,indices,==);
+..   return aggregate(select_new_val,seq);
 ..   }
      console function: sort2(seq)
 >> def maxseq(seq) {
-..      max_val = sort2(seq)[-1][0];
-..      return max_val * length;
+..   max_val = sort2(seq)[-1][0];
+..   return max_val;
 ..   }
      console function: maxseq(seq)
 >> maxseq(tokens)("ababcabab");
-         =  [ccccccccc]*9 (strings)
+         =  [c]*9 (strings)
 ```
 
 **Problem 6:**
@@ -185,6 +186,22 @@ For example:
 "22222"
 ```
 
+**Solution:**
+```
+>> def howmany(seq, t) {
+..      return selector_width(select(seq, t, ==))
+..      if contains(seq, t) 
+..      else "0";
+..   }
+     console function: howmany(seq, t)
+>> howmany(tokens, "a")("hello");
+         =  [0]*5 (strings)
+>> howmany(tokens, "h")("hello");
+         =  [1]*5 (ints)
+>> howmany(tokens, "l")("hello");
+         =  [2]*5 (ints)
+```
+
 **Problem 7:**
 Write a function that counts the number of times a certain token has appeared in the input sequence so far.
 For example:
@@ -197,6 +214,22 @@ For example:
 "01111"
 > howmany(tokens, "l")("hello")
 "00122"
+```
+
+**Solution:**
+```
+>> def howmany(seq, n) {
+..      return round((indices+1) * aggregate(select(indices, indices, <=), indicator(seq==n)));
+..   }
+     console function: howmany(seq, n)
+>> howmany(tokens, "a")("hello");
+         =  [0]*5 (ints)
+>> howmany(tokens, "h")("hello");
+         =  [1]*5 (ints)
+>> howmany(tokens, "e")("hello");
+         =  [0, 1, 1, 1, 1] (ints)
+>> howmany(tokens, "l")("hello");
+         =  [0, 0, 1, 2, 2] (ints)
 ```
 
 **Problem 8:**
