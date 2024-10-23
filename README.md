@@ -235,3 +235,21 @@ For example:
 **Problem 8:**
 Create your own "interesting" problem statement.
 Write a function/s-op that solves this problem.
+
+**Problem:** Write a function that reverses an input for the first half and rotates it by a set number for the second half.
+
+**Solution:**
+```
+>> def reverserotate(seq, r){
+..      return aggregate(select(indices, length-indices-1, ==), tokens) 
+..      if indices < round(length / 2)
+..      else aggregate(select((indices + r) % length, indices, ==), seq);
+..   }
+     console function: reverserotate(seq, r)
+>> reverserotate(tokens, 1)("hello");
+         =  [o, l, e, l, l] (strings)
+>> reverserotate(tokens, 0)("hello");
+         =  [o, l, l, l, o] (strings)
+>> reverserotate(tokens, 3)("ababababa");
+         =  [a, b, a, b, b, a, b, a, b] (strings)
+```
